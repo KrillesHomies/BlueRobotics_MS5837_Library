@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+
+    <name>br_ms5837</name>
+    <version>0.2.0</version>
+    <description>Blue Robotics MS5837 library, modified to use MRAA instead of Wire</description>
+
+    <maintainer email="clyde@mcqueen.net">Clyde McQueen</maintainer>
+    <license>MIT</license>
+
+    <url type="repository">https://github.com/clydemcqueen/BlueRobotics_MS5837_Library.git</url>
+    <url type="bugtracker">https://github.com/clydemcqueen/BlueRobotics_MS5837_Library/issues</url>
+
+    <author>Rustom Jehangir</author>
+    <author>Adam Šimko</author>
+    <author>Clyde McQueen</author>
+
+    <buildtool_depend>ament_cmake</buildtool_depend>
+
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
+
+</package>

@@ -32,12 +32,18 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
--------------------------------*/ 
+-------------------------------*/
+
+//================================================================================
+// Modified 2019 by Clyde McQueen to use Intel MRAA instead of Arduino Wire
+//================================================================================
 
 #ifndef MS5837_H_BLUEROBOTICS
 #define MS5837_H_BLUEROBOTICS
 
-#include "Arduino.h"
+#include <cstdint>
+#include "mraa/common.hpp"
+#include "mraa/i2c.hpp"
 
 class MS5837 {
 public:
@@ -48,7 +54,7 @@ public:
 	static const uint8_t MS5837_30BA;
 	static const uint8_t MS5837_02BA;
 
-	MS5837();
+	MS5837(int bus);
 
 	bool init();
 
@@ -84,6 +90,7 @@ public:
 	float altitude();
 
 private:
+	mraa::I2c i2c;
 	uint16_t C[8];
 	uint32_t D1, D2;
 	int32_t TEMP;
