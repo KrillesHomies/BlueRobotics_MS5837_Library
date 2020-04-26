@@ -54,7 +54,7 @@ public:
 	static const uint8_t MS5837_30BA;
 	static const uint8_t MS5837_02BA;
 
-	MS5837(int bus);
+	explicit MS5837(int bus, bool raw = false);
 
 	bool init();
 

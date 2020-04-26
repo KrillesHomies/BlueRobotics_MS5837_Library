@@ -19,7 +19,7 @@ const float MS5837::mbar = 1.0f;
 const uint8_t MS5837::MS5837_30BA = 0;
 const uint8_t MS5837::MS5837_02BA = 1;
 
-MS5837::MS5837(int bus) : i2c(bus) {
+MS5837::MS5837(int bus, bool raw) : i2c(bus, raw) {
 	fluidDensity = 1029;
 }
 
