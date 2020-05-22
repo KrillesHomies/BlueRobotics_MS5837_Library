@@ -12,9 +12,20 @@ endif ()
 
 find_package(ament_cmake REQUIRED)
 
+# Hack for MRAA
 set(mraa_INCLUDE_DIRS "/usr/include")
-set(mraa_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmraa.so")
 set(mraa_FOUND true)
+
+# x86 vs ARM -- this works on Linux
+if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "aarch64")
+  message(STATUS "Detected aarch64")
+  set(mraa_LIBRARIES "/usr/lib/aarch64-linux-gnu/libmraa.so")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPROCESSOR_AARCH64")
+else()
+  message(STATUS "Default to x86_64")
+  set(mraa_LIBRARIES "/usr/lib/x86_64-linux-gnu/libmraa.so")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DPROCESSOR_X86_64")
+endif()
 
 # Local includes
 include_directories(
