@@ -32,12 +32,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
--------------------------------*/ 
+-------------------------------*/
+
+//================================================================================
+// Modified 2021 by Kristoffer Lindve to work with Raspberry Pi OS (using WiringPi)
+//================================================================================
 
 #ifndef MS5837_H_BLUEROBOTICS
 #define MS5837_H_BLUEROBOTICS
 
-#include "Arduino.h"
+#include <cstdint>
+
 
 class MS5837 {
 public:
@@ -48,7 +53,7 @@ public:
 	static const uint8_t MS5837_30BA;
 	static const uint8_t MS5837_02BA;
 
-	MS5837();
+	//MS5837(int bus);
 
 	bool init();
 
@@ -64,7 +69,7 @@ public:
 
 	/** The read from I2C takes up to 40 ms, so use sparingly is possible.
 	 */
-	void read();
+	void read_data();
 
 	/** Pressure returned in mbar or mbar*conversion rate.
 	 */
@@ -84,11 +89,13 @@ public:
 	float altitude();
 
 private:
+
 	uint16_t C[8];
 	uint32_t D1, D2;
 	int32_t TEMP;
 	int32_t P;
 	uint8_t _model;
+	int port;
 
 	float fluidDensity;
 

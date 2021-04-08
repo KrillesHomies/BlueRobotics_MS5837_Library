@@ -1,0 +1,6 @@
+<launch>
+	<node pkg="ms5837" name="ms5837_node" type="ms5837_node">
+		<param name="publish_rate"    value="10.0"/>
+	</node>
+
+</launch>

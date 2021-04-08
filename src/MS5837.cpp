@@ -1,5 +1,11 @@
-#include "MS5837.h"
-#include <Wire.h>
+#include "MS5837.hpp"
+#include <wiringPi.h>
+#include <wiringPiI2C.h>
+#include <math.h>
+#include <thread>
+#include <iostream>
+#include <chrono>
+#include <unistd.h>
 
 #define MS5837_ADDR               0x76  
 #define MS5837_RESET              0x1E
@@ -15,27 +21,32 @@ const float MS5837::mbar = 1.0f;
 const uint8_t MS5837::MS5837_30BA = 0;
 const uint8_t MS5837::MS5837_02BA = 1;
 
-MS5837::MS5837() {
+/*
+MS5837::MS5837(int bus, bool raw) : i2c(bus, raw) {
 	fluidDensity = 1029;
-}
+}*/
 
 bool MS5837::init() {
+	
+	// Initialize wiring Pi
+    wiringPiSetupSys();
+    port = wiringPiI2CSetup(MS5837_ADDR);
+	// Failed to find device 
+    if (port == -1) {
+        return false;
+   	}
 	// Reset the MS5837, per datasheet
-	Wire.beginTransmission(MS5837_ADDR);
-	Wire.write(MS5837_RESET);
-	Wire.endTransmission();
+	int t = wiringPiI2CWrite(port, MS5837_RESET);
 
 	// Wait for reset to complete
-	delay(10);
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	// Read calibration values and CRC
 	for ( uint8_t i = 0 ; i < 7 ; i++ ) {
-		Wire.beginTransmission(MS5837_ADDR);
-		Wire.write(MS5837_PROM_READ+i*2);
-		Wire.endTransmission();
-
-		Wire.requestFrom(MS5837_ADDR,2);
-		C[i] = (Wire.read() << 8) | Wire.read();
+		u_int8_t buf[2];
+		wiringPiI2CWrite(port,MS5837_PROM_READ+i*2);
+		read(port, buf, 2);
+		C[i] = (buf[0] << 8) | buf[1];
 	}
 
 	// Verify that data is correct with CRC
@@ -57,40 +68,27 @@ void MS5837::setFluidDensity(float density) {
 	fluidDensity = density;
 }
 
-void MS5837::read() {
+void MS5837::read_data() {
 	// Request D1 conversion
-	Wire.beginTransmission(MS5837_ADDR);
-	Wire.write(MS5837_CONVERT_D1_8192);
-	Wire.endTransmission();
+	wiringPiI2CWrite(port, MS5837_CONVERT_D1_8192);
 
-	delay(20); // Max conversion time per datasheet
-	
-	Wire.beginTransmission(MS5837_ADDR);
-	Wire.write(MS5837_ADC_READ);
-	Wire.endTransmission();
+	std::this_thread::sleep_for(std::chrono::milliseconds(20)); // Max conversion time per datasheet
 
- 	Wire.requestFrom(MS5837_ADDR,3);
-	D1 = 0;
-	D1 = Wire.read();
-	D1 = (D1 << 8) | Wire.read();
-	D1 = (D1 << 8) | Wire.read();
-	
+	wiringPiI2CWrite(port, MS5837_ADC_READ);
+
+	u_int8_t buf[3];
+	read(port, buf, 3);
+	D1 = (buf[0] << 16) | (buf[1] << 8) | buf[0];
+
 	// Request D2 conversion
-	Wire.beginTransmission(MS5837_ADDR);
-	Wire.write(MS5837_CONVERT_D2_8192);
-	Wire.endTransmission();
+	wiringPiI2CWrite (port, MS5837_CONVERT_D2_8192);
 
-	delay(20); // Max conversion time per datasheet
+	std::this_thread::sleep_for(std::chrono::milliseconds(20)); // Max conversion time per datasheet
 	
-	Wire.beginTransmission(MS5837_ADDR);
-	Wire.write(MS5837_ADC_READ);
-	Wire.endTransmission();
+	wiringPiI2CWrite (port, MS5837_ADC_READ);
 
-	Wire.requestFrom(MS5837_ADDR,3);
-	D2 = 0;
-	D2 = Wire.read();
-	D2 = (D2 << 8) | Wire.read();
-	D2 = (D2 << 8) | Wire.read();
+	read(port, buf, 3);
+	D2 = (buf[0] << 16) | (buf[1] << 8) | buf[0];
 
 	calculate();
 }
